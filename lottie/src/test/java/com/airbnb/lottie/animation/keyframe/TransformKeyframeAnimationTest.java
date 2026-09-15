@@ -29,15 +29,37 @@ public class TransformKeyframeAnimationTest extends BaseTest {
   }
 
   @Test
-  public void autoOrientOverridesZRotationButPreservesXRotation() {
+  public void autoOrientComposesWithZAndXRotation() {
     AnimatablePointValue position = new AnimatablePointValue(Collections.singletonList(
         new Keyframe<PointF>(null, new PointF(0, 0), new PointF(0, 100),
             new LinearInterpolator(), 0f, 1f)));
-    AnimatableTransform transform = new AnimatableTransform(null, position, null, null,
+    AnimatableTransform transform = new AnimatableTransform(null, position, null, value(243),
         null, null, null, null, null, value(60), null, value(30));
     transform.setAutoOrient(true);
     assertMapsTo(transform.createAnimation().getMatrix(), new float[] {2, 2},
-        new float[] {-1, 2});
+        new float[] {-1.3660254f, 0.7320508f});
+  }
+
+  @Test
+  public void autoOrientPreservesExplicitRotation() {
+    // Like star.json: auto orientation and an explicit 243-degree rotation coexist.
+    AnimatablePointValue position = new AnimatablePointValue(Collections.singletonList(
+        new Keyframe<PointF>(null, new PointF(0, 0), new PointF(0, 100),
+            new LinearInterpolator(), 0f, 1f)));
+    AnimatableTransform transform = new AnimatableTransform(null, position, null, value(243),
+        null, null, null, null, null, null, null, null);
+    transform.setAutoOrient(true);
+    // The downward path contributes 90 degrees: 243 + 90 = 333.
+    assertMapsTo(transform.createAnimation().getMatrix(), new float[] {1, 0},
+        new float[] {0.8910065f, -0.4539905f});
+  }
+
+  @Test
+  public void threeDRotationDoesNotAlsoApply2DRotation() {
+    AnimatableTransform transform = new AnimatableTransform(null, null, null, value(90),
+        null, null, null, null, null, value(60), null, null);
+    assertMapsTo(transform.createAnimation().getMatrix(), new float[] {1, 0, 0, 1},
+        new float[] {1, 0, 0, 0.5f});
   }
 
   @Test

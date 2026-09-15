@@ -233,8 +233,7 @@ public class TransformKeyframeAnimation {
       }
     }
 
-    // If autoOrient is true, the rotation should follow the derivative of the position rather
-    // than the rotation property.
+    // Auto orientation follows the position derivative in addition to the rotation property.
     if (autoOrient) {
       if (position != null) {
         float currentProgress = position.getProgress();
@@ -257,11 +256,11 @@ public class TransformKeyframeAnimation {
     if (has3DRotation) {
       float rotationX = this.rotationX == null ? 0f : this.rotationX.getFloatValue();
       float rotationY = this.rotationY == null ? 0f : this.rotationY.getFloatValue();
-      // Auto orient replaces rotation around the Z axis, but X and Y rotations still apply.
-      float rotationZ = autoOrient || this.rotationZ == null ? 0f : this.rotationZ.getFloatValue();
+      // Auto orientation is composed with the explicit Z rotation.
+      float rotationZ = this.rotationZ == null ? 0f : this.rotationZ.getFloatValue();
       update3DRotationCache(rotationX, rotationY, rotationZ);
       applyCached3DRotations(0f, 0f);
-    } else if (!autoOrient) {
+    } else {
       BaseKeyframeAnimation<Float, Float> rotation = this.rotation;
       if (rotation != null) {
         float rotationValue;
